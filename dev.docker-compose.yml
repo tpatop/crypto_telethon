@@ -1,62 +1,83 @@
 version: '3.9'
 
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:16.1
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_LOGIN}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      PGDATA: "/var/lib/postgresql/data/pgdata"
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_LOGIN}", "-h", "postgres", "-p", "5432"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: always
-    networks:
-      - appnet
-
-  adminer:
-    container_name: db_admin
-    image: adminer:4.8.1
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    ports:
-      - 8888:8080
-    restart: always
-    networks:
-      - appnet
-
-  web:
-    container_name: web
+  crypto_api:
+    container_name: crypto_api
     build:
       context: .
-      dockerfile: web.Dockerfile
+      dockerfile: ./api_crypto/web.Dockerfile
     working_dir: /code
     volumes:
       - ./:/code
     depends_on:
-      postgres:
-        condition: service_healthy
+      - redis
     ports:
       - 8080:8080
     environment:
       - WATCHFILES_FORCE_POLLING=true
     restart: always
     networks:
-      - appnet
+      - crypto_telethon_net
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - crypto_telethon_net
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./api_telegram/Dockerfile
+    image: celery_worker
+    command: /start-celeryworker
+    volumes:
+      - .:/code
+    restart: always
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - crypto_telethon_net
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./api_telegram/Dockerfile
+    image: celery_beat
+    command: /start-celerybeat
+    volumes:
+      - .:/code
+    restart: always
+    depends_on:
+      - redis
+      - celery_worker
+    env_file:
+      - .env
+    networks:
+      - crypto_telethon_net
+
+  celery_flower:
+    build:
+      context: .
+      dockerfile: ./api_telegram/Dockerfile
+    image: celery_flower
+    command: /start-flower
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    ports:
+      - 5557:5555
+    restart: always
+    depends_on:
+      - redis
+      - celery_worker
+    networks:
+      - crypto_telethon_net
 
 networks:
-  appnet:
-    name: appnet
+  crypto_telethon_net:
+    name: cr_tel_net
     driver: bridge
-
-volumes:
-  postgres:
-  pgadmin:
