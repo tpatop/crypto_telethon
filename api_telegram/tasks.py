@@ -17,7 +17,7 @@ def repeating_task():
 app.conf.beat_schedule = {
     'run_every_3_hours': {
         'task': 'tasks.repeating_task',
-        'schedule': 1 * 15 * 60
+        'schedule': 3 * 60 * 60
     }
 }
 app.conf.timezone = 'UTC'
