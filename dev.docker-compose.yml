@@ -4,17 +4,18 @@ services:
   crypto_api:
     container_name: crypto_api
     build:
-      context: .
-      dockerfile: ./api_crypto/web.Dockerfile
+      context: ./api_crypto
+      dockerfile: web.Dockerfile
     working_dir: /code
     volumes:
-      - ./:/code
+      - ./api_crypto/:/code
     depends_on:
       - redis
     ports:
       - 8080:8080
     environment:
       - WATCHFILES_FORCE_POLLING=true
+      - API_KEY=${API_KEY}
     restart: always
     networks:
       - crypto_telethon_net
@@ -24,48 +25,52 @@ services:
     restart: always
     networks:
       - crypto_telethon_net
+    # volumes:
+    #   - db_redis
 
   celery_worker:
     build:
-      context: .
-      dockerfile: ./api_telegram/Dockerfile
+      context: ./api_telegram/
+      dockerfile: Dockerfile
     image: celery_worker
     command: /start-celeryworker
     volumes:
-      - .:/code
+      - ./api_telegram/:/code
     restart: always
     depends_on:
       - redis
-    env_file:
-      - .env
+    environment:
+      - API_TG_ID=${API_TG_ID}
+      - API_TG_HASH=${API_TG_HASH}
     networks:
       - crypto_telethon_net
 
   celery_beat:
     build:
-      context: .
-      dockerfile: ./api_telegram/Dockerfile
+      context: ./api_telegram
+      dockerfile: Dockerfile
     image: celery_beat
     command: /start-celerybeat
     volumes:
-      - .:/code
+      - ./api_telegram/:/code
     restart: always
+    environment:
+      - API_TG_ID=${API_TG_ID}
+      - API_TG_HASH=${API_TG_HASH}
     depends_on:
       - redis
       - celery_worker
-    env_file:
-      - .env
     networks:
       - crypto_telethon_net
 
   celery_flower:
     build:
-      context: .
-      dockerfile: ./api_telegram/Dockerfile
+      context: ./api_telegram
+      dockerfile: Dockerfile
     image: celery_flower
     command: /start-flower
     volumes:
-      - .:/code
+      - ./api_telegram/:/code
     env_file:
       - .env
     ports:
@@ -76,6 +81,11 @@ services:
       - celery_worker
     networks:
       - crypto_telethon_net
+
+
+volumes:
+  db_redis:
+
 
 networks:
   crypto_telethon_net:

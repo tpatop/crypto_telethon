@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 worker_ready() {
-    celery -A api_telegram.celery.tasks inspect ping
+    celery -A tasks inspect ping
 }
 
 until worker_ready; do
@@ -13,4 +13,4 @@ until worker_ready; do
 done
 >&2 echo 'Celery workers is available'
 
-celery -A api_telegram.celery.tasks flower
+celery -A tasks flower

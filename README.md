@@ -20,6 +20,11 @@ make start
 ```
 If you are launching the application for the first time, you will need to enter the number and confirmation code in the telegram application in the terminal.
 
+### Running development version with rebuild container
+```
+make start-build
+```
+
 ### Stop the applications
 ```
 make stop

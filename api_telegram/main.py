@@ -1,7 +1,7 @@
 from telethon.sync import TelegramClient
-from .core.config import load_bot_config, BotConfig
+from core.config import load_bot_config, BotConfig
 
-from .utils.external_api import convert_all_data
+from utils.external_api import convert_all_data
 
 
 conf: BotConfig = load_bot_config()

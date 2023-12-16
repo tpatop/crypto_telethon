@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -o errexit
-set -o nounset
-
-celery -A api_telegram.celery.tasks worker --loglevel=info

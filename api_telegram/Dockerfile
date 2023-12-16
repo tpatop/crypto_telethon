@@ -17,18 +17,18 @@ RUN apt-get update && \
 
 
 
-COPY ./requirements.txt /requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ./req_api_telegram.txt req_api_telegram.txt
+RUN pip install --no-cache-dir -r req_api_telegram.txt
 
-COPY ./api_telegram/celery/worker/start /start-celeryworker
+COPY ./celerys/worker/start /start-celeryworker
 RUN sed -i 's/\r$//g' /start-celeryworker
 RUN chmod +x /start-celeryworker
 
-COPY ./api_telegram/celery/beat/start /start-celerybeat
+COPY ./celerys/beat/start /start-celerybeat
 RUN sed -i 's/\r$//g' /start-celerybeat
 RUN chmod +x /start-celerybeat
 
-COPY ./api_telegram/celery/flower/start /start-flower
+COPY ./celerys/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 

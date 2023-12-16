@@ -19,6 +19,6 @@ WORKDIR /code
 
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r req_api_crypto.txt
 
-CMD [ "sh", "-c", "python api_crypto/main.py"]
+CMD [ "sh", "-c", "python main.py"]
