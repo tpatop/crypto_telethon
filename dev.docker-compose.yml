@@ -29,6 +29,7 @@ services:
     #   - db_redis
 
   celery_worker:
+    container_name: celery_worker
     build:
       context: ./api_telegram/
       dockerfile: Dockerfile
@@ -46,6 +47,7 @@ services:
       - crypto_telethon_net
 
   celery_beat:
+    container_name: celery_beat
     build:
       context: ./api_telegram
       dockerfile: Dockerfile
@@ -64,6 +66,7 @@ services:
       - crypto_telethon_net
 
   celery_flower:
+    container_name: celery_flower
     build:
       context: ./api_telegram
       dockerfile: Dockerfile
@@ -83,8 +86,8 @@ services:
       - crypto_telethon_net
 
 
-volumes:
-  db_redis:
+# volumes:
+#   db_redis:
 
 
 networks:
